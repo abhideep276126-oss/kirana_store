@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1565C0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Alok Kirana">
+<meta name="description" content="Alok Kirana Store - Udhar Book aur Stock Manager">
+<title>Alok Kirana Store</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #F0F4F8; min-height: 100vh; }
+
+.app { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: #F0F4F8; }
+
+.header {
+  background: linear-gradient(135deg, #0D47A1 0%, #1976D2 60%, #42A5F5 100%);
+  padding: 18px 16px 14px;
+  display: flex; align-items: center; gap: 14px;
+  border-radius: 0 0 20px 20px;
+  box-shadow: 0 4px 20px rgba(13,71,161,0.3);
+}
+.logo-circle {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: #FFD600; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; border: 3px solid #fff; flex-direction: column; gap: 1px;
+}
+.logo-icon { font-size: 24px; line-height: 1; }
+.logo-initial { font-size: 10px; font-weight: 700; color: #0D47A1; letter-spacing: 1px; }
+.header-text { color: #fff; }
+.header-text h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.3px; }
+.header-text p { font-size: 11px; opacity: 0.85; margin-top: 2px; }
+
+.tabs {
+  display: flex; background: #fff;
+  border-bottom: 1px solid #E0E0E0;
+  padding: 0 8px;
+  position: sticky; top: 0; z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.tab {
+  flex: 1; padding: 12px 4px; font-size: 12px; font-weight: 600;
+  text-align: center; cursor: pointer; color: #9E9E9E;
+  border-bottom: 3px solid transparent; transition: all 0.2s;
+}
+.tab.active { color: #1565C0; border-bottom-color: #1565C0; }
+
+.content { flex: 1; padding: 14px; }
+.section { display: none; }
+.section.active { display: block; }
+
+/* Summary */
+.summary-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.summary-card { background: #fff; border-radius: 12px; padding: 10px 8px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.summary-label { font-size: 10px; color: #9E9E9E; margin-bottom: 3px; }
+.summary-val { font-size: 15px; font-weight: 700; }
+.red { color: #C62828; } .green { color: #2E7D32; } .blue { color: #1565C0; }
+
+/* Search */
+.search-box { display: flex; gap: 8px; margin-bottom: 12px; }
+.search-box input {
+  flex: 1; padding: 10px 14px; border-radius: 12px;
+  border: 1px solid #E0E0E0; background: #fff;
+  font-size: 14px; color: #212121;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.search-box input:focus { outline: none; border-color: #1565C0; }
+
+/* Cards */
+.card { background: #fff; border-radius: 14px; padding: 13px 14px; margin-bottom: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+.udhar-card { border-left: 4px solid #E53935; }
+.udhar-card.paid { border-left: 4px solid #43A047; }
+
+.udhar-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+.udhar-name { font-size: 15px; font-weight: 600; color: #212121; }
+.udhar-sub { font-size: 11px; color: #9E9E9E; margin-top: 2px; }
+.udhar-amount { font-size: 17px; font-weight: 700; color: #C62828; text-align: right; }
+.udhar-amount.paid { color: #2E7D32; font-size: 13px; }
+.udhar-items { font-size: 12px; color: #616161; margin-top: 5px; background: #F5F5F5; border-radius: 8px; padding: 5px 8px; }
+
+.action-row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.btn-small {
+  flex: 1; min-width: 55px; padding: 7px 4px; font-size: 11px; font-weight: 600;
+  border-radius: 8px; cursor: pointer; text-align: center; border: none;
+}
+.btn-paid { color: #2E7D32; background: #E8F5E9; }
+.btn-delete { color: #C62828; background: #FFEBEE; }
+.btn-more { color: #1565C0; background: #E3F2FD; }
+.btn-wa { color: #fff; background: #25D366; }
+.btn-wa:active { background: #128C7E; }
+
+/* Form */
+.add-form { background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+.add-form h3 { font-size: 15px; font-weight: 600; margin-bottom: 12px; color: #0D47A1; border-bottom: 2px solid #E3F2FD; padding-bottom: 8px; }
+.form-row { margin-bottom: 10px; }
+.form-row label { font-size: 11px; color: #616161; display: block; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-row input, .form-row textarea, .form-row select {
+  width: 100%; padding: 10px 12px; border-radius: 10px;
+  border: 1px solid #E0E0E0; background: #FAFAFA;
+  font-size: 13px; color: #212121; font-family: 'Segoe UI', sans-serif;
+}
+.form-row input:focus, .form-row textarea:focus, .form-row select:focus { outline: none; border-color: #1565C0; background: #fff; }
+.form-row textarea { resize: none; height: 60px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.btn-primary {
+  background: linear-gradient(135deg, #1565C0, #1976D2);
+  color: #fff; border: none; border-radius: 12px;
+  padding: 12px 16px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 4px;
+  box-shadow: 0 4px 12px rgba(21,101,192,0.3);
+}
+.btn-primary:active { transform: scale(0.98); }
+
+/* Stock */
+.stock-card { display: flex; align-items: center; gap: 12px; }
+.stock-icon { width: 42px; height: 42px; border-radius: 10px; background: #E3F2FD; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.stock-info { flex: 1; }
+.stock-name { font-size: 14px; font-weight: 600; color: #212121; }
+.stock-qty { font-size: 12px; color: #9E9E9E; margin-top: 2px; }
+.stock-price { font-size: 15px; font-weight: 700; color: #1565C0; }
+.low-stock { background: #FFF8E1; border-left: 4px solid #FFA000; }
+.low-badge { font-size: 10px; background: #FFF3E0; color: #E65100; border-radius: 5px; padding: 2px 6px; margin-left: 6px; font-weight: 600; }
+
+/* Info box */
+.info-box { background: #E8F5E9; border-radius: 10px; padding: 10px 13px; margin-bottom: 12px; font-size: 12px; color: #2E7D32; font-weight: 500; }
+
+.empty { text-align: center; padding: 40px 20px; color: #BDBDBD; font-size: 14px; }
+
+/* Modal */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.open { display: flex; }
+.modal { background: #fff; border-radius: 20px; padding: 22px; width: 100%; max-width: 380px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 14px; color: #0D47A1; }
+.history-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #F5F5F5; font-size: 13px; }
+.history-item:last-child { border-bottom: none; }
+.modal-close { margin-top: 14px; width: 100%; padding: 12px; background: #1565C0; color: #fff; border: none; border-radius: 12px; font-size: 14px; cursor: pointer; font-weight: 600; }
+
+.wa-modal { background: #fff; border-radius: 20px; padding: 22px; width: 100%; max-width: 380px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.wa-modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; color: #075E54; }
+.wa-modal p { font-size: 12px; color: #9E9E9E; margin-bottom: 12px; }
+.msg-preview { background: #DCF8C6; border-radius: 12px; padding: 12px 14px; font-size: 13px; color: #1B5E20; margin-bottom: 14px; line-height: 1.6; white-space: pre-wrap; border: 1px solid #A5D6A7; max-height: 200px; overflow-y: auto; }
+.wa-send-btn { width: 100%; padding: 13px; background: #25D366; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; margin-bottom: 8px; }
+.wa-cancel-btn { width: 100%; padding: 11px; background: none; color: #9E9E9E; border: 1px solid #E0E0E0; border-radius: 12px; font-size: 13px; cursor: pointer; }
+
+/* Template preview */
+.template-preview { background: #DCF8C6; border-radius: 10px; padding: 10px 12px; font-size: 12px; color: #1B5E20; line-height: 1.6; white-space: pre-wrap; margin-top: 8px; border: 1px solid #A5D6A7; }
+
+/* Install banner */
+.install-banner { background: linear-gradient(135deg, #0D47A1, #1976D2); color: #fff; border-radius: 14px; padding: 14px; margin-bottom: 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+.install-banner .install-icon { font-size: 28px; }
+.install-banner .install-text h4 { font-size: 14px; font-weight: 600; }
+.install-banner .install-text p { font-size: 11px; opacity: 0.85; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <div class="logo-circle">
+      <div class="logo-icon">🛒</div>
+      <div class="logo-initial">AKS</div>
+    </div>
+    <div class="header-text">
+      <h1>Alok Kirana Store</h1>
+      <p>Udhar Book &amp; Stock Manager</p>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('udhar')">📒 Udhar</div>
+    <div class="tab" onclick="showTab('stock')">📦 Stock</div>
+    <div class="tab" onclick="showTab('add')">➕ Naya</div>
+  </div>
+
+  <div class="content">
+
+    <!-- UDHAR TAB -->
+    <div class="section active" id="tab-udhar">
+      <div id="install-banner" class="install-banner" onclick="installApp()" style="display:none">
+        <div class="install-icon">📲</div>
+        <div class="install-text">
+          <h4>Phone mein Install Karein</h4>
+          <p>Home screen pe add karein — bilkul app jaisa!</p>
+        </div>
+      </div>
+      <div class="summary-row">
+        <div class="summary-card"><div class="summary-label">Kul Udhar</div><div class="summary-val red" id="total-udhar">₹0</div></div>
+        <div class="summary-card"><div class="summary-label">Logon ki Ginti</div><div class="summary-val blue" id="total-people">0</div></div>
+        <div class="summary-card"><div class="summary-label">Wapas Aaya</div><div class="summary-val green" id="total-paid">₹0</div></div>
+      </div>
+      <div class="info-box">💬 WhatsApp button se seedha reminder bhejo!</div>
+      <div class="search-box">
+        <input type="text" id="search-udhar" placeholder="🔍 Naam se dhundho..." oninput="renderUdhar()">
+      </div>
+      <div id="udhar-list"></div>
+    </div>
+
+    <!-- STOCK TAB -->
+    <div class="section" id="tab-stock">
+      <div class="search-box">
+        <input type="text" id="search-stock" placeholder="🔍 Saman dhundho..." oninput="renderStock()">
+      </div>
+      <div id="stock-list"></div>
+    </div>
+
+    <!-- ADD TAB -->
+    <div class="section" id="tab-add">
+
+      <div class="add-form">
+        <h3>📒 Naya Udhar Jodo</h3>
+        <div class="form-row"><label>Grahak ka Naam</label><input type="text" id="new-name" placeholder="Jaise: Ramesh Kumar"></div>
+        <div class="form-row"><label>WhatsApp Number (10 ank)</label><input type="tel" id="new-phone" placeholder="9876543210" maxlength="10"></div>
+        <div class="two-col">
+          <div class="form-row"><label>Raqam (₹)</label><input type="number" id="new-amount" placeholder="0"></div>
+          <div class="form-row"><label>Tarikh</label><input type="date" id="new-date"></div>
+        </div>
+        <div class="form-row"><label>Saman / Note</label><textarea id="new-items" placeholder="Jaise: Chawal 5kg, Tel 1L..."></textarea></div>
+        <button class="btn-primary" onclick="addUdhar()">✅ Udhar Jodo</button>
+      </div>
+
+      <div class="add-form">
+        <h3>💬 WhatsApp Message Style</h3>
+        <div class="form-row">
+          <label>Message ka andaaz</label>
+          <select id="msg-template" onchange="updatePreview()">
+            <option value="soft">🙏 Vinay se — Namaste style</option>
+            <option value="normal">📢 Seedha — Yaad dilana</option>
+            <option value="firm">⚠️ Sakht — Jaldi chukao</option>
+          </select>
+        </div>
+        <div class="template-preview" id="template-preview"></div>
+      </div>
+
+      <div class="add-form">
+        <h3>📦 Naya Saman Jodo</h3>
+        <div class="form-row"><label>Saman ka Naam</label><input type="text" id="new-item-name" placeholder="Jaise: Aata, Chawal..."></div>
+        <div class="two-col">
+          <div class="form-row"><label>Matra</label><input type="number" id="new-item-qty" placeholder="0"></div>
+          <div class="form-row"><label>Daam (₹)</label><input type="number" id="new-item-price" placeholder="0"></div>
+        </div>
+        <div class="two-col">
+          <div class="form-row"><label>Unit</label>
+            <select id="new-item-unit">
+              <option>kg</option><option>L</option><option>pcs</option><option>dozen</option><option>packet</option>
+            </select>
+          </div>
+          <div class="form-row"><label>Emoji</label><input type="text" id="new-item-emoji" placeholder="🌾" maxlength="2"></div>
+        </div>
+        <button class="btn-primary" onclick="addStock()">✅ Stock Jodo</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- History Modal -->
+<div class="modal-overlay" id="history-modal">
+  <div class="modal">
+    <h3 id="modal-title">Udhar Vivaran</h3>
+    <div id="modal-body"></div>
+    <button class="modal-close" onclick="closeModal('history-modal')">Band Karo</button>
+  </div>
+</div>
+
+<!-- WhatsApp Modal -->
+<div class="modal-overlay" id="wa-modal">
+  <div class="wa-modal">
+    <h3>📱 WhatsApp Reminder</h3>
+    <p id="wa-to-label">Bhej rahe hain...</p>
+    <div class="msg-preview" id="wa-msg-preview"></div>
+    <button class="wa-send-btn" onclick="sendWA()">▶ WhatsApp pe Bhejo</button>
+    <button class="wa-cancel-btn" onclick="closeModal('wa-modal')">Wapas Jao</button>
+  </div>
+</div>
+
+<script>
+// ── DATA ──
+let udharList = JSON.parse(localStorage.getItem('udhar') || 'null') || [
+  {id:1,name:"Ramesh Kumar",phone:"9876543210",amount:450,paid:false,date:"2025-08-18",items:"Chawal 5kg, Tel 1L",history:[{date:"2025-08-18",note:"Chawal 5kg, Tel 1L",amount:450}]},
+  {id:2,name:"Sunita Devi",phone:"9123456780",amount:230,paid:false,date:"2025-08-19",items:"Aata 2kg, Sabun x2",history:[{date:"2025-08-19",note:"Aata 2kg, Sabun x2",amount:230}]},
+  {id:3,name:"Mohan Singh",phone:"",amount:780,paid:true,date:"2025-08-15",items:"Daal 3kg, Namak, Masale",history:[{date:"2025-08-15",note:"Daal 3kg, Namak, Masale",amount:780}]},
+];
+let stockList = JSON.parse(localStorage.getItem('stock') || 'null') || [
+  {id:1,name:"Basmati Chawal",qty:50,unit:"kg",price:65,emoji:"🌾"},
+  {id:2,name:"Sarson Tel",qty:12,unit:"L",price:140,emoji:"🫙"},
+  {id:3,name:"Aata",qty:4,unit:"kg",price:45,emoji:"🌾"},
+  {id:4,name:"Cheeni",qty:30,unit:"kg",price:42,emoji:"🍬"},
+  {id:5,name:"Doodh",qty:2,unit:"L",price:58,emoji:"🥛"},
+];
+let nextId = parseInt(localStorage.getItem('nextId') || '10');
+let currentWA = null;
+let deferredPrompt = null;
+
+function save() {
+  localStorage.setItem('udhar', JSON.stringify(udharList));
+  localStorage.setItem('stock', JSON.stringify(stockList));
+  localStorage.setItem('nextId', nextId);
+}
+
+// ── TEMPLATES ──
+const templates = {
+  soft:   (n,a,i) => `Pranam ${n} ji 🙏\n\nAlok Kirana Store se aapka dil se abhinandan.\n\nAapka "${i}" ke liye ₹${a} ka chota sa udhar baaki hai.\n\nJab suvidha ho, chuka dijiyega.\n\nDhanyawad 🙏\n— Alok Kirana Store`,
+  normal: (n,a,i) => `Namaste ${n} ji,\n\nAlok Kirana Store ki yaad dila rahe hain.\n\nAapka ₹${a} ka udhar abhi baaki hai.\nSaman: ${i}\n\nKripya jaldi chuka dein.\n\nShukriya!\n— Alok Kirana Store`,
+  firm:   (n,a,i) => `${n} ji,\n\nAapka Alok Kirana Store mein ₹${a} baaki hai.\nSaman: ${i}\n\nKripya aaj hi chuka dein.\n\n— Alok Kirana Store`
+};
+
+function getMsg(n,a,i) {
+  const t = document.getElementById('msg-template').value;
+  return templates[t](n,a,i);
+}
+
+function updatePreview() {
+  document.getElementById('template-preview').textContent = getMsg('Ramesh Kumar',450,'Chawal 5kg, Tel 1L');
+}
+
+// ── TABS ──
+function showTab(t) {
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['udhar','stock','add'][i]===t));
+  document.querySelectorAll('.section').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  if(t==='udhar') renderUdhar();
+  if(t==='stock') renderStock();
+  if(t==='add') updatePreview();
+}
+
+function fmt(n){ return '₹'+Number(n).toLocaleString('en-IN'); }
+
+// ── RENDER UDHAR ──
+function renderUdhar() {
+  const q = document.getElementById('search-udhar').value.toLowerCase();
+  const filtered = udharList.filter(u=>u.name.toLowerCase().includes(q));
+  const unpaid = udharList.filter(u=>!u.paid);
+  const paid = udharList.filter(u=>u.paid);
+  document.getElementById('total-udhar').textContent = fmt(unpaid.reduce((s,u)=>s+u.amount,0));
+  document.getElementById('total-people').textContent = unpaid.length;
+  document.getElementById('total-paid').textContent = fmt(paid.reduce((s,u)=>s+u.amount,0));
+  const el = document.getElementById('udhar-list');
+  if(!filtered.length){ el.innerHTML='<div class="empty">🔍 Koi nahi mila</div>'; return; }
+  el.innerHTML = filtered.sort((a,b)=>a.paid-b.paid).map(u=>`
+    <div class="card udhar-card ${u.paid?'paid':''}">
+      <div class="udhar-header">
+        <div>
+          <div class="udhar-name">${u.name}</div>
+          <div class="udhar-sub">${u.phone||'Number nahi'} &nbsp;|&nbsp; ${u.date}</div>
+        </div>
+        <div class="udhar-amount ${u.paid?'paid':''}">${u.paid?'✓ CHUKTA':fmt(u.amount)}</div>
+      </div>
+      <div class="udhar-items">🛍 ${u.items}</div>
+      <div class="action-row">
+        ${!u.paid?`<div class="btn-small btn-paid" onclick="markPaid(${u.id})">✓ Chukta</div>`:''}
+        ${!u.paid&&u.phone?`<div class="btn-small btn-wa" onclick="openWA(${u.id})">📱 WhatsApp</div>`:''}
+        <div class="btn-small btn-more" onclick="showHistory(${u.id})">📋 Vivaran</div>
+        <div class="btn-small btn-delete" onclick="deleteUdhar(${u.id})">🗑 Hatao</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── RENDER STOCK ──
+function renderStock() {
+  const q = document.getElementById('search-stock').value.toLowerCase();
+  const filtered = stockList.filter(s=>s.name.toLowerCase().includes(q));
+  const el = document.getElementById('stock-list');
+  if(!filtered.length){ el.innerHTML='<div class="empty">📦 Koi saman nahi mila</div>'; return; }
+  el.innerHTML = filtered.map(s=>`
+    <div class="card stock-card ${s.qty<=5?'low-stock':''}">
+      <div class="stock-icon">${s.emoji}</div>
+      <div class="stock-info">
+        <div class="stock-name">${s.name}${s.qty<=5?'<span class="low-badge">⚠ Kam Stock</span>':''}</div>
+        <div class="stock-qty">${s.qty} ${s.unit} bacha hai</div>
+      </div>
+      <div class="stock-price">${fmt(s.price)}/${s.unit}</div>
+    </div>`).join('');
+}
+
+// ── ADD UDHAR ──
+function addUdhar() {
+  const name = document.getElementById('new-name').value.trim();
+  const phone = document.getElementById('new-phone').value.trim();
+  const amount = parseFloat(document.getElementById('new-amount').value);
+  const date = document.getElementById('new-date').value || new Date().toISOString().slice(0,10);
+  const items = document.getElementById('new-items').value.trim() || '—';
+  if(!name||!amount){ alert('⚠ Naam aur raqam zaroor bharo!'); return; }
+  udharList.push({id:nextId++,name,phone,amount,paid:false,date,items,history:[{date,note:items,amount}]});
+  save();
+  document.getElementById('new-name').value='';
+  document.getElementById('new-phone').value='';
+  document.getElementById('new-amount').value='';
+  document.getElementById('new-items').value='';
+  alert('✅ Udhar jod diya!');
+  showTab('udhar');
+}
+
+// ── ADD STOCK ──
+function addStock() {
+  const name = document.getElementById('new-item-name').value.trim();
+  const qty = parseFloat(document.getElementById('new-item-qty').value);
+  const price = parseFloat(document.getElementById('new-item-price').value)||0;
+  const unit = document.getElementById('new-item-unit').value;
+  const emoji = document.getElementById('new-item-emoji').value||'📦';
+  if(!name||!qty){ alert('⚠ Saman ka naam aur matra bharo!'); return; }
+  stockList.push({id:nextId++,name,qty,unit,price,emoji});
+  save();
+  document.getElementById('new-item-name').value='';
+  document.getElementById('new-item-qty').value='';
+  document.getElementById('new-item-price').value='';
+  document.getElementById('new-item-emoji').value='';
+  alert('✅ Saman jod diya!');
+  showTab('stock');
+}
+
+function markPaid(id) {
+  const u = udharList.find(x=>x.id===id);
+  if(u && confirm(u.name+' ka '+fmt(u.amount)+' chukta mark karein?')){ u.paid=true; save(); renderUdhar(); }
+}
+
+function deleteUdhar(id) {
+  const u = udharList.find(x=>x.id===id);
+  if(u && confirm(u.name+' ka udhar hatayein?')){ udharList=udharList.filter(x=>x.id!==id); save(); renderUdhar(); }
+}
+
+function openWA(id) {
+  currentWA = udharList.find(x=>x.id===id);
+  if(!currentWA) return;
+  const msg = getMsg(currentWA.name, currentWA.amount, currentWA.items);
+  document.getElementById('wa-to-label').textContent = 'Bhej rahe hain: '+currentWA.name+' ('+currentWA.phone+')';
+  document.getElementById('wa-msg-preview').textContent = msg;
+  document.getElementById('wa-modal').classList.add('open');
+}
+
+function sendWA() {
+  if(!currentWA) return;
+  const msg = getMsg(currentWA.name, currentWA.amount, currentWA.items);
+  window.open('https://wa.me/91'+currentWA.phone+'?text='+encodeURIComponent(msg), '_blank');
+  closeModal('wa-modal');
+}
+
+function showHistory(id) {
+  const u = udharList.find(x=>x.id===id);
+  if(!u) return;
+  document.getElementById('modal-title').textContent = u.name+' — Vivaran';
+  document.getElementById('modal-body').innerHTML =
+    u.history.map(h=>`<div class="history-item"><span><b>${h.date}</b><br><span style="color:#9E9E9E;font-size:11px">${h.note}</span></span><span style="font-weight:700;color:#C62828">₹${h.amount}</span></div>`).join('')+
+    `<div style="display:flex;justify-content:space-between;padding-top:10px;font-weight:700;font-size:14px"><span>Kul Baaki</span><span style="color:#C62828">${fmt(u.amount)}</span></div>`;
+  document.getElementById('history-modal').classList.add('open');
+}
+
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+// ── PWA INSTALL ──
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').style.display = 'flex';
+});
+
+function installApp() {
+  if(deferredPrompt){ deferredPrompt.prompt(); deferredPrompt.userChoice.then(()=>{ deferredPrompt=null; document.getElementById('install-banner').style.display='none'; }); }
+}
+
+// ── INIT ──
+document.getElementById('new-date').value = new Date().toISOString().slice(0,10);
+renderUdhar();
+updatePreview();
+</script>
+</body>
+</html>
